@@ -70,6 +70,10 @@ spec:
                     description: ImageURL is the URL where the image will be pushed
                       to.
                     type: string
+                  local:
+                    description: Local indicates if the image is hosted in a cluster-local
+                      image registry.
+                    type: boolean
                 required:
                 - image
                 type: object
@@ -94,6 +98,10 @@ spec:
                     description: ImageURL is the URL where the image will be pushed
                       to.
                     type: string
+                  local:
+                    description: Local indicates if the image is hosted in a cluster-local
+                      image registry.
+                    type: boolean
                 required:
                 - image
                 type: object
@@ -133,6 +141,10 @@ spec:
                         description: ImageURL is the URL where the image will be pushed
                           to.
                         type: string
+                      local:
+                        description: Local indicates if the image is hosted in a cluster-local
+                          image registry.
+                        type: boolean
                     required:
                     - image
                     type: object

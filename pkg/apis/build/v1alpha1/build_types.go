@@ -61,6 +61,10 @@ type Image struct {
 	// credentials to push the image to the registry
 	// +optional
 	SecretRef *corev1.LocalObjectReference `json:"credentials,omitempty"`
+
+	// Local indicates if the image is hosted in a cluster-local image registry.
+	// +optional
+	Local bool `json:"local,omitempty"`
 }
 
 // Runtime represents the runtime-image, created using parts of builder-image, and a different
