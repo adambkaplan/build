@@ -84,6 +84,9 @@ The build operator/controller must have RBAC which allows it to read the `Config
 registry host information. For `Build` and `BuildRun` objects, the `HostFromClusterNetwork` value
 should be used as the hostname.
 
+If the `local-registry-hosting` ConfigMap is created, updated, or deleted, the build controller
+and/or operator needs to react accordingly.
+
 #### Declaring an image as local
 
 `Image` references in the API will be updated to have the `local` field. An example using the 
@@ -96,120 +99,67 @@ spec:
     local: true
 ```
 
+When an image is declared as `local`, the build controller prepends the local image registry
+hostname to the provided image reference.
+
 ### Risks and Mitigations
 
-What are the risks of this proposal and how do we mitigate. Think broadly. For example, consider
-both security and how this will impact the larger OKD ecosystem.
+App developers use `local: true` on clusters that don't have a local registry defined, end up
+pulling images from `docker.io` or an image registry in container runtime's unqualified search
+path.
 
-How will security be reviewed and by whom? How will UX be reviewed and by whom?
-
-Consider including folks that also work outside your immediate sub-project.
+Local image registry configurations can be altered while the build controller is running.
 
 ## Design Details
 
 ### Test Plan
 
-**Note:** *Section not required until targeted at a release.*
-
-Consider the following in developing a test plan for this enhancement:
-
-- Will there be e2e and integration tests, in addition to unit tests?
-- How will it be tested in isolation vs with other components?
-
-No need to outline all of the test cases, just the general strategy. Anything that would count as
-tricky in the implementation and anything particularly challenging to test should be called out.
-
-All code is expected to have adequate tests (eventually with coverage expectations).
+1. Deploy the build operator/controller on a cluster that populates the `local-registry-hosting`
+   ConfigMap OR as cluster-admin, manually populate the `local-registry-hosting` ConfigMap.
+2. Create a `Build` and/or `BuildRun` which references a local image.
+3. Ensure that a build can push an image referencing the local image spec.
 
 ### Graduation Criteria
 
-**Note:** *Section not required until targeted at a release.*
+**Dev Preview** - we can simply define an environment variable to set the local registry hostname.
 
-Define graduation milestones.
-
-These may be defined in terms of API maturity, or as something else. Initial proposal should keep
-this high-level with a focus on what signals will be looked at to determine graduation.
-
-Consider the following in developing the graduation criteria for this enhancement:
-
-- Maturity levels - `Dev Preview`, `Tech Preview`, `GA`
-- Deprecation
-
-Clearly define what graduation means.
+**Tech Preview/GA** - fully read the `local-registry-hosting` ConfigMap, with the ability to update
+the build controller if this ConfigMap changes.
 
 #### Examples
 
 These are generalized examples to consider, in addition to the aforementioned [maturity
 levels][maturity-levels].
 
-##### Dev Preview -> Tech Preview
-
-- Ability to utilize the enhancement end to end
-- End user documentation, relative API stability
-- Sufficient test coverage
-- Gather feedback from users rather than just developers
-
-##### Tech Preview -> GA
-
-- More testing (upgrade, downgrade, scale)
-- Sufficient time for feedback
-- Available by default
-
-**For non-optional features moving to GA, the graduation criteria must include end to end tests.**
-
-##### Removing a deprecated feature
-
-- Announce deprecation and support policy of the existing feature
-- Deprecate the feature
-
 ### Upgrade / Downgrade Strategy
 
-If applicable, how will the component be upgraded and downgraded? Make sure this is in the test
-plan.
-
-Consider the following in developing an upgrade/downgrade strategy for this enhancement:
-
-- What changes (in invocations, configurations, API use, etc.) is an existing cluster required to
-  make on upgrade in order to keep previous behavior?
-- What changes (in invocations, configurations, API use, etc.) is an existing cluster required to
-  make on upgrade in order to make use of the enhancement?
+Upgrades add a new field to the API. On downgrade the `local` attribute should be ignored.
 
 ### Version Skew Strategy
 
-How will the component handle version skew with other components? What are the guarantees? Make sure
-this is in the test plan.
-
-Consider the following in developing a version skew strategy for this enhancement:
-
-- During an upgrade, we will always have skew among components, how will this impact your work?
-- Does this enhancement involve coordinating behavior in the control plane and in the kubelet? How
-  does an n-2 kubelet without this feature available behave when this feature is used?
-- Will any other components on the node change? For example, changes to CSI, CRI or CNI may require
-  updating that component before the kubelet.
+N/A
 
 ## Implementation History
 
-Major milestones in the life cycle of a proposal should be tracked in `Implementation History`.
+2020-07-24: Initial proposal
 
 ## Drawbacks
+
+TBD
 
 The idea is to find the best form of an argument why this enhancement should _not_ be implemented.
 
 ## Alternatives
+
+TBD
 
 Similar to the `Drawbacks` section the `Alternatives` section is used to highlight and record other
 possible approaches to delivering the value proposed by an enhancement.
 
 ## Infrastructure Needed [optional]
 
-Use this section if you need things from the project. Examples include a new subproject, repos
-requested, github details, and/or testing infrastructure.
-
-Listing these here allows the community to get the process for these resources started right away.
+- A cluster which populates the `local-registry-hosting` ConfigMap
 
 ## Open Questions [optional]
 
-This is where to call out areas of the design that require closure before deciding to implement the
-design. For instance:
-
-> 1. This locks a build strategy to run privileged pods. Should we do this?
+1. How can we make `Build` objects with local image pull specs portable across namespaces?
