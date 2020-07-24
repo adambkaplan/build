@@ -34,9 +34,10 @@ var (
 // Config hosts different parameters that
 // can be set to use on the Build controllers
 type Config struct {
-	CtxTimeOut           time.Duration
-	KanikoContainerImage string
-	Prometheus           PrometheusConfig
+	CtxTimeOut             time.Duration
+	KanikoContainerImage   string
+	Prometheus             PrometheusConfig
+	LocalImageRegistryHost string
 }
 
 // PrometheusConfig contains the specific configuration for the

@@ -308,5 +308,46 @@ var _ = Describe("GenerateTaskrun", func() {
 				}
 			})
 		})
+
+		Context("when the build contains a local output imageURL", func() {
+			var outputImageSpec = "exampleapp/example:latest"
+			var localRegistry = "image-registry.svc.local:5000"
+			BeforeEach(func() {
+
+				build, err = ctl.LoadBuildYAML([]byte(test.BuildahBuildWithOutput))
+				Expect(err).To(BeNil())
+				build.Spec.Output.ImageURL = outputImageSpec
+				build.Spec.Output.Local = true
+
+				buildRun, err = ctl.LoadBuildRunYAML([]byte(test.BuildahBuildRunWithSAAndOutput))
+				Expect(err).To(BeNil())
+				buildRun.Spec.Output.ImageURL = outputImageSpec
+				buildRun.Spec.Output.Local = true
+
+				buildStrategy, err = ctl.LoadBuildStrategyYAML([]byte(test.BuildahBuildStrategySingleStep))
+				Expect(err).To(BeNil())
+			})
+
+			JustBeforeEach(func() {
+				cfg := config.NewDefaultConfig()
+				cfg.LocalImageRegistryHost = localRegistry
+				got, err = buildrunCtl.GenerateTaskRun(cfg, build, buildRun, serviceAccountName, buildStrategy.Spec.BuildSteps)
+				Expect(err).To(BeNil())
+			})
+
+			It("should update the output image from the BuildRun", func() {
+				expectedImageURL := fmt.Sprintf("%s/%s", localRegistry, outputImageSpec)
+				outputResources := got.Spec.Resources.Outputs
+				for _, outputResource := range outputResources {
+					Expect(outputResource.ResourceSpec.Type).To(Equal(v1beta1.PipelineResourceTypeImage))
+					params := outputResource.ResourceSpec.Params
+					for _, param := range params {
+						if param.Name == "url" {
+							Expect(param.Value).To(Equal(expectedImageURL))
+						}
+					}
+				}
+			})
+		})
 	})
 })

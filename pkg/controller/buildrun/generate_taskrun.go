@@ -181,11 +181,17 @@ func GenerateTaskRun(
 	}
 
 	// retrieve expected imageURL form build or buildRun
-	var ImageURL string
+	var outputImage string
 	if buildRun.Spec.Output != nil {
-		ImageURL = buildRun.Spec.Output.ImageURL
+		outputImage = buildRun.Spec.Output.ImageURL
+		if buildRun.Spec.Output.Local {
+			outputImage = fmt.Sprintf("%s/%s", cfg.LocalImageRegistryHost, buildRun.Spec.Output.ImageURL)
+		}
 	} else {
-		ImageURL = build.Spec.Output.ImageURL
+		outputImage = build.Spec.Output.ImageURL
+		if build.Spec.Output.Local {
+			outputImage = fmt.Sprintf("%s/%s", cfg.LocalImageRegistryHost, build.Spec.Output.ImageURL)
+		}
 	}
 
 	taskSpec, err := GenerateTaskSpec(cfg, build, buildRun, buildSteps)
@@ -237,7 +243,7 @@ func GenerateTaskRun(
 								Params: []taskv1.ResourceParam{
 									{
 										Name:  outputImageResourceURL,
-										Value: ImageURL,
+										Value: outputImage,
 									},
 								},
 							},
