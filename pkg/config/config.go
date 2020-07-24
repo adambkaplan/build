@@ -20,6 +20,9 @@ const (
 	// KANIKO_CONTAINER_IMAGE="gcr.io/kaniko-project/executor:v0.24.0"
 	kanikoImageEnvVar = "KANIKO_CONTAINER_IMAGE"
 
+	// localImageRegistryEnvVar is the env var to set a local image registry hostname
+	localImageRegistryEnvVar = "LOCAL_IMAGE_REGISTRY_HOSTNAME"
+
 	// environment variable to override the buckets
 	metricBuildRunCompletionDurationBucketsEnvVar = "PROMETHEUS_BR_COMP_DUR_BUCKETS"
 	metricBuildRunEstablishDurationBucketsEnvVar  = "PROMETHEUS_BR_EST_DUR_BUCKETS"
@@ -91,6 +94,8 @@ func (c *Config) SetConfigFromEnv() error {
 		}
 		c.Prometheus.BuildRunEstablishDurationBuckets = buildRunEstablishDurationBuckets
 	}
+
+	c.LocalImageRegistryHost = os.Getenv(localImageRegistryEnvVar)
 
 	return nil
 }
