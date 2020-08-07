@@ -64,7 +64,7 @@ type Image struct {
 
 	// Local indicates if the image is hosted in a cluster-local image registry.
 	// +optional
-	Local bool `json:"local,omitempty"`
+	Local *bool `json:"local,omitempty"`
 }
 
 // Runtime represents the runtime-image, created using parts of builder-image, and a different

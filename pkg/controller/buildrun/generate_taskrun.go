@@ -184,12 +184,12 @@ func GenerateTaskRun(
 	var outputImage string
 	if buildRun.Spec.Output != nil {
 		outputImage = buildRun.Spec.Output.ImageURL
-		if buildRun.Spec.Output.Local {
+		if buildRun.Spec.Output.Local != nil && *buildRun.Spec.Output.Local {
 			outputImage = fmt.Sprintf("%s/%s", cfg.LocalImageRegistryHost, buildRun.Spec.Output.ImageURL)
 		}
 	} else {
 		outputImage = build.Spec.Output.ImageURL
-		if build.Spec.Output.Local {
+		if build.Spec.Output.Local != nil && *build.Spec.Output.Local {
 			outputImage = fmt.Sprintf("%s/%s", cfg.LocalImageRegistryHost, build.Spec.Output.ImageURL)
 		}
 	}

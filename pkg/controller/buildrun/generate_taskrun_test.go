@@ -313,16 +313,16 @@ var _ = Describe("GenerateTaskrun", func() {
 			var outputImageSpec = "exampleapp/example:latest"
 			var localRegistry = "image-registry.svc.local:5000"
 			BeforeEach(func() {
-
+				truePtr := true
 				build, err = ctl.LoadBuildYAML([]byte(test.BuildahBuildWithOutput))
 				Expect(err).To(BeNil())
 				build.Spec.Output.ImageURL = outputImageSpec
-				build.Spec.Output.Local = true
+				build.Spec.Output.Local = &truePtr
 
 				buildRun, err = ctl.LoadBuildRunYAML([]byte(test.BuildahBuildRunWithSAAndOutput))
 				Expect(err).To(BeNil())
 				buildRun.Spec.Output.ImageURL = outputImageSpec
-				buildRun.Spec.Output.Local = true
+				buildRun.Spec.Output.Local = &truePtr
 
 				buildStrategy, err = ctl.LoadBuildStrategyYAML([]byte(test.BuildahBuildStrategySingleStep))
 				Expect(err).To(BeNil())
