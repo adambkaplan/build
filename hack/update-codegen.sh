@@ -38,6 +38,7 @@ pushd $GIT_ROOT
   /bin/bash vendor/k8s.io/code-generator/generate-groups.sh "deepcopy,client" \
     github.com/shipwright-io/build/pkg/client/build \
     github.com/shipwright-io/build/pkg/apis \
-    build:v1alpha1
+    build:v1alpha1 \
+    --go-header-file "${GIT_ROOT}/hack/boilerplate.go.txt"
 
 popd
