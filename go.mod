@@ -11,25 +11,24 @@ require (
 	github.com/gobuffalo/packr v1.30.1 // indirect
 	github.com/helm/helm-2to3 v0.5.1 // indirect
 	github.com/martinlindhe/base36 v1.0.0 // indirect
-	github.com/onsi/ginkgo v1.12.0
-	github.com/onsi/gomega v1.9.0
+	github.com/onsi/ginkgo v1.12.1
+	github.com/onsi/gomega v1.10.1
 	github.com/operator-framework/operator-lifecycle-manager v0.0.0-20200321030439-57b580e57e88 // indirect
 	github.com/operator-framework/operator-sdk v0.18.2
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.5.1
+	github.com/prometheus/client_golang v1.6.0
 	github.com/prometheus/client_model v0.2.0
 	github.com/spf13/pflag v1.0.5
 	github.com/tektoncd/pipeline v0.14.2
 	github.com/vbatts/tar-split v0.11.1 // indirect
-	golang.org/x/sys v0.0.0-20200413165638-669c56c373c4 // indirect
-	k8s.io/api v0.18.2
-	k8s.io/apimachinery v0.18.2
+	k8s.io/api v0.18.8
+	k8s.io/apimachinery v0.18.8
 	k8s.io/client-go v12.0.0+incompatible
-	k8s.io/code-generator v0.18.2
+	k8s.io/code-generator v0.18.8
 	k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29
 	k8s.io/kubectl v0.18.2
-	knative.dev/pkg v0.0.0-20200528142800-1c6815d7e4c9
-	sigs.k8s.io/controller-runtime v0.6.0
+	knative.dev/pkg v0.0.0-20200922164940-4bf40ad82aab
+	sigs.k8s.io/controller-runtime v0.6.1
 	sigs.k8s.io/yaml v1.2.0
 )
 
