@@ -67,7 +67,44 @@ type PipelineSpec struct {
 	// Workspaces declares a set of named workspaces that are expected to be
 	// provided by a PipelineRun.
 	// +optional
-	Workspaces []WorkspacePipelineDeclaration `json:"workspaces,omitempty"`
+	Workspaces []PipelineWorkspaceDeclaration `json:"workspaces,omitempty"`
+	// Results are values that this pipeline can output once run
+	// +optional
+	Results []PipelineResult `json:"results,omitempty"`
+	// Finally declares the list of Tasks that execute just before leaving the Pipeline
+	// i.e. either after all Tasks are finished executing successfully
+	// or after a failure which would result in ending the Pipeline
+	Finally []PipelineTask `json:"finally,omitempty"`
+}
+
+// PipelineResult used to describe the results of a pipeline
+type PipelineResult struct {
+	// Name the given name
+	Name string `json:"name"`
+
+	// Description is a human-readable description of the result
+	// +optional
+	Description string `json:"description"`
+
+	// Value the expression used to retrieve the value
+	Value string `json:"value"`
+}
+
+type PipelineTaskMetadata struct {
+	// +optional
+	Labels map[string]string `json:"labels,omitempty"`
+
+	// +optional
+	Annotations map[string]string `json:"annotations,omitempty"`
+}
+
+type EmbeddedTask struct {
+	// +optional
+	Metadata PipelineTaskMetadata `json:"metadata,omitempty"`
+
+	// TaskSpec is a specification of a task
+	// +optional
+	*TaskSpec `json:",inline,omitempty"`
 }
 
 // PipelineTask defines a task in a Pipeline, passing inputs from both
@@ -84,11 +121,16 @@ type PipelineTask struct {
 
 	// TaskSpec is a specification of a task
 	// +optional
-	TaskSpec *TaskSpec `json:"taskSpec,omitempty"`
+	TaskSpec *EmbeddedTask `json:"taskSpec,omitempty"`
 
 	// Conditions is a list of conditions that need to be true for the task to run
+	// Conditions are deprecated, use WhenExpressions instead
 	// +optional
 	Conditions []PipelineTaskCondition `json:"conditions,omitempty"`
+
+	// WhenExpressions is a list of when expressions that need to be true for the task to run
+	// +optional
+	WhenExpressions WhenExpressions `json:"when,omitempty"`
 
 	// Retries represents how many times this task should be retried in case of task failure: ConditionSucceeded set to False
 	// +optional
@@ -117,6 +159,10 @@ type PipelineTask struct {
 	// Refer Go's ParseDuration documentation for expected format: https://golang.org/pkg/time/#ParseDuration
 	// +optional
 	Timeout *metav1.Duration `json:"timeout,omitempty"`
+}
+
+func (pt *PipelineTask) TaskSpecMetadata() PipelineTaskMetadata {
+	return pt.TaskSpec.Metadata
 }
 
 func (pt PipelineTask) HashKey() string {
@@ -149,6 +195,16 @@ func (pt PipelineTask) Deps() []string {
 	// Add any dependents from task results
 	for _, param := range pt.Params {
 		expressions, ok := GetVarSubstitutionExpressionsForParam(param)
+		if ok {
+			resultRefs := NewResultRefs(expressions)
+			for _, resultRef := range resultRefs {
+				deps = append(deps, resultRef.PipelineTask)
+			}
+		}
+	}
+	// Add any dependents from when expressions
+	for _, whenExpression := range pt.WhenExpressions {
+		expressions, ok := whenExpression.GetVarSubstitutionExpressions()
 		if ok {
 			resultRefs := NewResultRefs(expressions)
 			for _, resultRef := range resultRefs {

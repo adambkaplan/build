@@ -21,6 +21,17 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	// TaskRunResultType default task run result value
+	TaskRunResultType ResultType = "TaskRunResult"
+	// PipelineResourceResultType default pipeline result value
+	PipelineResourceResultType ResultType = "PipelineResourceResult"
+	// InternalTektonResultType default internal tekton result value
+	InternalTektonResultType ResultType = "InternalTektonResult"
+	// UnknownResultType default unknown result type value
+	UnknownResultType ResultType = ""
+)
+
 // +genclient
 // +genclient:noStatus
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -116,8 +127,16 @@ type Step struct {
 	Script string `json:"script,omitempty"`
 }
 
-// A sidecar has the same data structure as a Step, consisting of a Container, and optional Script.
-type Sidecar = Step
+// Sidecar embeds the Container type, which allows it to include fields not
+// provided by Container.
+type Sidecar struct {
+	corev1.Container `json:",inline"`
+
+	// Script is the contents of an executable file to execute.
+	//
+	// If Script is not empty, the Step cannot have an Command or Args.
+	Script string `json:"script,omitempty"`
+}
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // TaskList contains a list of Task
@@ -133,7 +152,7 @@ type TaskList struct {
 type TaskRef struct {
 	// Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names
 	Name string `json:"name,omitempty"`
-	// TaskKind inficates the kind of the task, namespaced or cluster scoped.
+	// TaskKind indicates the kind of the task, namespaced or cluster scoped.
 	Kind TaskKind `json:"kind,omitempty"`
 	// API version of the referent
 	// +optional
@@ -145,7 +164,7 @@ type TaskRef struct {
 type TaskKind string
 
 const (
-	// NamespacedTaskKind indicates that the task type has a namepace scope.
+	// NamespacedTaskKind indicates that the task type has a namespaced scope.
 	NamespacedTaskKind TaskKind = "Task"
 	// ClusterTaskKind indicates that task type has a cluster scope.
 	ClusterTaskKind TaskKind = "ClusterTask"
