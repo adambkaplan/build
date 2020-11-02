@@ -109,11 +109,6 @@ func (fe *FieldError) ViaFieldKey(field string, key string) *FieldError {
 
 // Also collects errors, returns a new collection of existing errors and new errors.
 func (fe *FieldError) Also(errs ...*FieldError) *FieldError {
-	// Avoid doing any work, if we don't have to.
-	if l := len(errs); l == 0 || l == 1 && errs[0].isEmpty() {
-		return fe
-	}
-
 	var newErr *FieldError
 	// collect the current objects errors, if it has any
 	if !fe.isEmpty() {
@@ -204,12 +199,11 @@ func flatten(path []string) string {
 	var newPath []string
 	for _, part := range path {
 		for _, p := range strings.Split(part, ".") {
-			switch {
-			case p == CurrentField:
+			if p == CurrentField {
 				continue
-			case len(newPath) > 0 && isIndex(p):
+			} else if len(newPath) > 0 && isIndex(p) {
 				newPath[len(newPath)-1] += p
-			default:
+			} else {
 				newPath = append(newPath, p)
 			}
 		}
@@ -384,7 +378,7 @@ func ErrOutOfBoundsValue(value, lower, upper interface{}, fieldPath string) *Fie
 func CheckDisallowedFields(request, maskedRequest interface{}) *FieldError {
 	if disallowed, err := kmp.CompareSetFields(request, maskedRequest); err != nil {
 		return &FieldError{
-			Message: "Internal Error",
+			Message: fmt.Sprintf("Internal Error"),
 			Paths:   []string{CurrentField},
 		}
 	} else if len(disallowed) > 0 {

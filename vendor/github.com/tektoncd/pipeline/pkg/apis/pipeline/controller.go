@@ -21,9 +21,6 @@ const (
 	// nolint: golint
 	PipelineRunControllerName = "PipelineRun"
 
-	// TaskRunControllerName holds the name of the TaskRun controller
-	TaskRunControllerName = "TaskRun"
-
 	// TaskRunControllerName holds the name of the PipelineRun controller
-	RunControllerName = "Run"
+	TaskRunControllerName = "TaskRun"
 )

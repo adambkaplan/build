@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 
 	jsonmergepatch "github.com/evanphx/json-patch"
-	jsonpatch "gomodules.xyz/jsonpatch/v2"
+	"github.com/mattbaird/jsonpatch"
 )
 
 func marshallBeforeAfter(before, after interface{}) ([]byte, []byte, error) {

@@ -49,9 +49,9 @@ func (tr *TaskRun) SetDefaults(ctx context.Context) {
 func (trs *TaskRunSpec) SetDefaults(ctx context.Context) {
 	if contexts.IsUpgradeViaDefaulting(ctx) {
 		v := v1beta1.TaskRunSpec{}
-		if trs.ConvertTo(ctx, &v) == nil {
+		if trs.ConvertUp(ctx, &v) == nil {
 			alpha := TaskRunSpec{}
-			if alpha.ConvertFrom(ctx, &v) == nil {
+			if alpha.ConvertDown(ctx, &v) == nil {
 				*trs = alpha
 			}
 		}
@@ -63,7 +63,16 @@ func (trs *TaskRunSpec) SetDefaults(ctx context.Context) {
 	}
 
 	if trs.Timeout == nil {
-		trs.Timeout = &metav1.Duration{Duration: time.Duration(cfg.Defaults.DefaultTimeoutMinutes) * time.Minute}
+		var timeout *metav1.Duration
+		if contexts.IsUpgradeViaDefaulting(ctx) {
+			// This case is for preexisting `TaskRun` before 0.5.0, so let's
+			// add the old default timeout.
+			// Most likely those TaskRun passing here are already done and/or already running
+			timeout = &metav1.Duration{Duration: config.DefaultTimeoutMinutes * time.Minute}
+		} else {
+			timeout = &metav1.Duration{Duration: time.Duration(cfg.Defaults.DefaultTimeoutMinutes) * time.Minute}
+		}
+		trs.Timeout = timeout
 	}
 
 	defaultSA := cfg.Defaults.DefaultServiceAccount

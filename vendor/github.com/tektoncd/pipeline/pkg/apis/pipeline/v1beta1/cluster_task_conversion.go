@@ -26,12 +26,12 @@ import (
 
 var _ apis.Convertible = (*ClusterTask)(nil)
 
-// ConvertTo implements api.Convertible
-func (source *ClusterTask) ConvertTo(ctx context.Context, sink apis.Convertible) error {
+// ConvertUp implements api.Convertible
+func (source *ClusterTask) ConvertUp(ctx context.Context, sink apis.Convertible) error {
 	return fmt.Errorf("v1beta1 is the highest known version, got: %T", sink)
 }
 
-// ConvertFrom implements api.Convertible
-func (sink *ClusterTask) ConvertFrom(ctx context.Context, source apis.Convertible) error {
+// ConvertDown implements api.Convertible
+func (sink *ClusterTask) ConvertDown(ctx context.Context, source apis.Convertible) error {
 	return fmt.Errorf("v1beta1 is the highest know version, got: %T", source)
 }

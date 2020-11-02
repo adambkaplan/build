@@ -26,11 +26,10 @@ import (
 // allVolumeSourceFields is a list of all the volume source field paths that a
 // WorkspaceBinding may include.
 var allVolumeSourceFields []string = []string{
-	"persistentvolumeclaim",
-	"volumeclaimtemplate",
-	"emptydir",
-	"configmap",
-	"secret",
+	"workspace.persistentvolumeclaim",
+	"workspace.emptydir",
+	"workspace.configmap",
+	"workspace.secret",
 }
 
 // Validate looks at the Volume provided in wb and makes sure that it is valid.
@@ -53,17 +52,17 @@ func (b *WorkspaceBinding) Validate(ctx context.Context) *apis.FieldError {
 
 	// For a PersistentVolumeClaim to work, you must at least provide the name of the PVC to use.
 	if b.PersistentVolumeClaim != nil && b.PersistentVolumeClaim.ClaimName == "" {
-		return apis.ErrMissingField("persistentvolumeclaim.claimname")
+		return apis.ErrMissingField("workspace.persistentvolumeclaim.claimname")
 	}
 
 	// For a ConfigMap to work, you must provide the name of the ConfigMap to use.
 	if b.ConfigMap != nil && b.ConfigMap.LocalObjectReference.Name == "" {
-		return apis.ErrMissingField("configmap.name")
+		return apis.ErrMissingField("workspace.configmap.name")
 	}
 
 	// For a Secret to work, you must provide the name of the Secret to use.
 	if b.Secret != nil && b.Secret.SecretName == "" {
-		return apis.ErrMissingField("secret.secretName")
+		return apis.ErrMissingField("workspace.secret.secretName")
 	}
 
 	return nil
@@ -73,9 +72,6 @@ func (b *WorkspaceBinding) Validate(ctx context.Context) *apis.FieldError {
 // has been configured with.
 func (b *WorkspaceBinding) numSources() int {
 	n := 0
-	if b.VolumeClaimTemplate != nil {
-		n++
-	}
 	if b.PersistentVolumeClaim != nil {
 		n++
 	}

@@ -22,9 +22,6 @@ import (
 	"fmt"
 
 	resource "github.com/tektoncd/pipeline/pkg/apis/resource/v1alpha1"
-	"github.com/tektoncd/pipeline/pkg/substitution"
-	"k8s.io/apimachinery/pkg/util/sets"
-	"knative.dev/pkg/apis"
 )
 
 // ParamSpec defines arbitrary parameters needed beyond typed inputs (such as
@@ -48,7 +45,6 @@ type ParamSpec struct {
 	Default *ArrayOrString `json:"default,omitempty"`
 }
 
-// SetDefaults set the default type
 func (pp *ParamSpec) SetDefaults(ctx context.Context) {
 	if pp != nil && pp.Type == "" {
 		if pp.Default != nil {
@@ -90,9 +86,9 @@ var AllParamTypes = []ParamType{ParamTypeString, ParamTypeArray}
 // Used in JSON unmarshalling so that a single JSON field can accept
 // either an individual string or an array of strings.
 type ArrayOrString struct {
-	Type      ParamType `json:"type"` // Represents the stored type of ArrayOrString.
-	StringVal string    `json:"stringVal"`
-	ArrayVal  []string  `json:"arrayVal"`
+	Type      ParamType // Represents the stored type of ArrayOrString.
+	StringVal string
+	ArrayVal  []string
 }
 
 // UnmarshalJSON implements the json.Unmarshaller interface.
@@ -117,7 +113,6 @@ func (arrayOrString ArrayOrString) MarshalJSON() ([]byte, error) {
 	}
 }
 
-// ApplyReplacements applyes replacements for ArrayOrString type
 func (arrayOrString *ArrayOrString) ApplyReplacements(stringReplacements map[string]string, arrayReplacements map[string][]string) {
 	if arrayOrString.Type == ParamTypeString {
 		arrayOrString.StringVal = ApplyReplacements(arrayOrString.StringVal, stringReplacements)
@@ -132,38 +127,16 @@ func (arrayOrString *ArrayOrString) ApplyReplacements(stringReplacements map[str
 
 // NewArrayOrString creates an ArrayOrString of type ParamTypeString or ParamTypeArray, based on
 // how many inputs are given (>1 input will create an array, not string).
-func NewArrayOrString(value string, values ...string) *ArrayOrString {
+func NewArrayOrString(value string, values ...string) ArrayOrString {
 	if len(values) > 0 {
-		return &ArrayOrString{
+		values = append([]string{value}, values...)
+		return ArrayOrString{
 			Type:     ParamTypeArray,
-			ArrayVal: append([]string{value}, values...),
+			ArrayVal: values,
 		}
 	}
-	return &ArrayOrString{
+	return ArrayOrString{
 		Type:      ParamTypeString,
 		StringVal: value,
 	}
-}
-
-func validatePipelineParametersVariablesInTaskParameters(params []Param, prefix string, paramNames sets.String, arrayParamNames sets.String) (errs *apis.FieldError) {
-	for _, param := range params {
-		if param.Value.Type == ParamTypeString {
-			errs = errs.Also(validateStringVariableInTaskParameters(param.Value.StringVal, prefix, paramNames, arrayParamNames).ViaFieldKey("params", param.Name))
-		} else {
-			for idx, arrayElement := range param.Value.ArrayVal {
-				errs = errs.Also(validateArrayVariableInTaskParameters(arrayElement, prefix, paramNames, arrayParamNames).ViaFieldIndex("value", idx).ViaFieldKey("params", param.Name))
-			}
-		}
-	}
-	return errs
-}
-
-func validateStringVariableInTaskParameters(value, prefix string, stringVars sets.String, arrayVars sets.String) *apis.FieldError {
-	errs := substitution.ValidateVariableP(value, prefix, stringVars)
-	return errs.Also(substitution.ValidateVariableProhibitedP(value, prefix, arrayVars))
-}
-
-func validateArrayVariableInTaskParameters(value, prefix string, stringVars sets.String, arrayVars sets.String) *apis.FieldError {
-	errs := substitution.ValidateVariableP(value, prefix, stringVars)
-	return errs.Also(substitution.ValidateVariableIsolatedP(value, prefix, arrayVars))
 }

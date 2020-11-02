@@ -21,32 +21,41 @@ import (
 	"fmt"
 	"strings"
 
-	"k8s.io/apimachinery/pkg/util/sets"
 	"knative.dev/pkg/apis"
 )
 
-func (tr *TaskResources) Validate(ctx context.Context) (errs *apis.FieldError) {
-	if tr != nil {
-		errs = errs.Also(validateTaskResources(tr.Inputs).ViaField("inputs"))
-		errs = errs.Also(validateTaskResources(tr.Outputs).ViaField("outputs"))
+func (tr *TaskResources) Validate(ctx context.Context) *apis.FieldError {
+	if tr == nil {
+		return nil
 	}
-	return errs
+	if err := validateTaskResources(tr.Inputs, "inputs"); err != nil {
+		return err
+	}
+	if err := validateTaskResources(tr.Outputs, "outputs"); err != nil {
+		return err
+	}
+	return nil
 }
 
-func validateTaskResources(resources []TaskResource) (errs *apis.FieldError) {
-	for idx, resource := range resources {
-		errs = errs.Also(validateResourceType(resource, fmt.Sprintf("%s.type", resource.Name))).ViaIndex(idx)
+func validateTaskResources(resources []TaskResource, name string) *apis.FieldError {
+	for _, resource := range resources {
+		if err := validateResourceType(resource, fmt.Sprintf("taskspec.resources.%s.%s.type", name, resource.Name)); err != nil {
+			return err
+		}
 	}
-	return errs.Also(checkForDuplicates(resources, "name"))
+	if err := checkForDuplicates(resources, fmt.Sprintf("taskspec.resources.%s.name", name)); err != nil {
+		return err
+	}
+	return nil
 }
 
 func checkForDuplicates(resources []TaskResource, path string) *apis.FieldError {
-	encountered := sets.NewString()
+	encountered := map[string]struct{}{}
 	for _, r := range resources {
-		if encountered.Has(strings.ToLower(r.Name)) {
+		if _, ok := encountered[strings.ToLower(r.Name)]; ok {
 			return apis.ErrMultipleOneOf(path)
 		}
-		encountered.Insert(strings.ToLower(r.Name))
+		encountered[strings.ToLower(r.Name)] = struct{}{}
 	}
 	return nil
 }
@@ -78,14 +87,14 @@ func (tr *TaskRunResources) Validate(ctx context.Context) *apis.FieldError {
 //	2. if both resource reference and resource spec is defined at the same time
 //	3. at least resource ref or resource spec is defined
 func validateTaskRunResources(ctx context.Context, resources []TaskResourceBinding, path string) *apis.FieldError {
-	encountered := sets.NewString()
+	encountered := map[string]struct{}{}
 	for _, r := range resources {
 		// We should provide only one binding for each resource required by the Task.
 		name := strings.ToLower(r.Name)
-		if encountered.Has(strings.ToLower(name)) {
+		if _, ok := encountered[strings.ToLower(name)]; ok {
 			return apis.ErrMultipleOneOf(path)
 		}
-		encountered.Insert(name)
+		encountered[name] = struct{}{}
 		// Check that both resource ref and resource Spec are not present
 		if r.ResourceRef != nil && r.ResourceSpec != nil {
 			return apis.ErrDisallowedFields(fmt.Sprintf("%s.resourceRef", path), fmt.Sprintf("%s.resourceSpec", path))

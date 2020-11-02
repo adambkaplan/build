@@ -1,12 +1,9 @@
 /*
 Copyright 2019 The Tekton Authors
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
     http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,12 +33,9 @@ const (
 	ResultResultPart = "results"
 	// TODO(#2462) use one regex across all substitutions
 	variableSubstitutionFormat = `\$\([_a-zA-Z0-9.-]+(\.[_a-zA-Z0-9.-]+)*\)`
-	// ResultNameFormat Constant used to define the the regex Result.Name should follow
-	ResultNameFormat = `^([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]$`
 )
 
 var variableSubstitutionRegex = regexp.MustCompile(variableSubstitutionFormat)
-var resultNameFormatRegex = regexp.MustCompile(ResultNameFormat)
 
 // NewResultRefs extracts all ResultReferences from a param or a pipeline result.
 // If the ResultReference can be extracted, they are returned. Expressions which are not
@@ -97,12 +91,6 @@ func GetVarSubstitutionExpressionsForParam(param Param) ([]string, bool) {
 	default:
 		return nil, false
 	}
-	return allExpressions, len(allExpressions) != 0
-}
-
-// GetVarSubstitutionExpressionsForPipelineResult extracts all the value between "$(" and ")"" for a pipeline result
-func GetVarSubstitutionExpressionsForPipelineResult(result PipelineResult) ([]string, bool) {
-	allExpressions := validateString(result.Value)
 	return allExpressions, len(allExpressions) != 0
 }
 

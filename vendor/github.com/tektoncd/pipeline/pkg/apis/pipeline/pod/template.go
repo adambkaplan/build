@@ -92,15 +92,7 @@ type Template struct {
 	PriorityClassName *string `json:"priorityClassName,omitempty" protobuf:"bytes,7,opt,name=priorityClassName"`
 	// SchedulerName specifies the scheduler to be used to dispatch the Pod
 	// +optional
-	SchedulerName string `json:"schedulerName,omitempty"`
-
-	// ImagePullSecrets gives the name of the secret used by the pod to pull the image if specified
-	// +optional
-	ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets,omitempty"`
-
-	// HostNetwork specifies whether the pod may use the node network namespace
-	// +optional
-	HostNetwork bool `json:"hostNetwork,omitempty"`
+	SchedulerName string `json:"schedulerName"`
 }
 
 func (tpl *Template) Equals(other *Template) bool {
