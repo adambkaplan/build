@@ -216,7 +216,7 @@ github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.5
 ## explicit
 github.com/spf13/pflag
-# github.com/tektoncd/pipeline v0.17.1
+# github.com/tektoncd/pipeline v0.17.1-0.20201006183654-d5df1c164a48
 ## explicit
 github.com/tektoncd/pipeline/pkg/apis/config
 github.com/tektoncd/pipeline/pkg/apis/pipeline
