@@ -71,6 +71,9 @@ IMAGE_HOST ?= quay.io
 IMAGE ?= shipwright/shipwright-operator
 TAG ?= latest
 
+# KO settings for build/release
+KO_PUSH ?= false
+
 .EXPORT_ALL_VARIABLES:
 
 default: build
@@ -234,10 +237,10 @@ test-e2e-plain: ginkgo
 .PHONY: install install-apis install-operator install-strategies
 
 install:
-	KO_DOCKER_REPO="$(IMAGE_HOST)/$(IMAGE)" GOFLAGS="$(GO_FLAGS)" ko apply --bare -R -f deploy/
+	KO_DOCKER_REPO="$(IMAGE_HOST)/$(IMAGE)" GOFLAGS="$(GO_FLAGS)" ko apply --push="$(KO_PUSH)" --bare -R -f deploy/
 
 install-with-pprof:
-	GOFLAGS="$(GO_FLAGS) -tags=pprof_enabled" ko apply -R -f deploy/
+	GOFLAGS="$(GO_FLAGS) -tags=pprof_enabled" ko apply --push="$(KO_PUSH)" -R -f deploy/
 
 install-apis:
 	kubectl apply -f deploy/crds/

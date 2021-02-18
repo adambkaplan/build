@@ -91,6 +91,8 @@ $ hack/install-tekton.sh
 
 ```bash
 $ make install
+...
+$ make install-strategies
 ```
 
 * Add a push secret to your container image repository, such as one on Docker Hub or quay.io:
