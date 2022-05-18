@@ -71,14 +71,8 @@ func (r *ReconcileTektonRun) Reconcile(ctx context.Context, request reconcile.Re
 		return reconcile.Result{Requeue: true}, err
 	}
 
-	buildrun := &buildv1alpha1.BuildRun{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: tektonRun.Namespace,
-		},
-	}
-
 	if status.IsEmpty() {
-		buildrun, err = r.createBuildRun(ctx, tektonRun)
+		buildrun, err := r.createBuildRun(ctx, tektonRun)
 		if err != nil {
 			return reconcile.Result{Requeue: true}, err
 		}
@@ -92,18 +86,24 @@ func (r *ReconcileTektonRun) Reconcile(ctx context.Context, request reconcile.Re
 		}
 		now := metav1.Now()
 		tektonRun.Status.StartTime = &now
-	} else {
-		buildrun.Name = status.BuildRunName
-		err = r.client.Get(ctx, client.ObjectKeyFromObject(buildrun), buildrun)
-		if err != nil {
-			ctxlog.Error(ctx, err, "failed to get BuildRun", "buildrun", status.BuildRunName, "tekton.run", tektonRun.GetName())
-			return reconcile.Result{Requeue: true}, err
-		}
-		ctxlog.Info(ctx, "Updating Tekton Run status with BuildRun", "tekton.run", tektonRun.GetName(), "buildrun", buildrun.GetName())
+		return r.updateRunStatus(ctx, tektonRun, buildrun)
 	}
 
+	buildrun := &buildv1alpha1.BuildRun{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: tektonRun.Namespace,
+			Name:      status.BuildRunName,
+		},
+	}
+	err = r.client.Get(ctx, client.ObjectKeyFromObject(buildrun), buildrun)
+	if err != nil {
+		ctxlog.Error(ctx, err, "failed to get BuildRun", "buildrun", status.BuildRunName)
+		return reconcile.Result{Requeue: true}, err
+	}
+	ctxlog.Info(ctx, "Updating Tekton Run status with BuildRun", "buildrun", buildrun.GetName())
+
 	result, err := r.updateRunStatus(ctx, tektonRun, buildrun)
-	ctxlog.Info(ctx, "finished reconcile request for tekton Run", "tekton.run", request.Name)
+	ctxlog.Info(ctx, "finished reconcile request for tekton Run")
 	return result, err
 }
 
