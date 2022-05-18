@@ -137,15 +137,33 @@ func (r *ReconcileTektonRun) createBuildRun(ctx context.Context, tektonRun *tekt
 			Namespace:    tektonRun.Namespace,
 		},
 	}
+	sourceURLParam := tektonRun.Spec.GetParam(ParamSourceURL)
+	sourceRevisionParam := tektonRun.Spec.GetParam(ParamSourceRevision)
+	outputImageParam := tektonRun.Spec.GetParam(ParamOutputImage)
 	if tektonRun.Spec.Ref != nil {
 		buildRun.Spec.BuildRef = &buildv1alpha1.BuildRef{
 			Name: tektonRun.Spec.Ref.Name,
+		}
+		// TODO: Enhance BuildRun to support overrides for source (or do we just switch to sources?)
+		if outputImageParam != nil {
+			buildRun.Spec.Output = &buildv1alpha1.Image{
+				Image: outputImageParam.Value.StringVal,
+			}
 		}
 	} else if tektonRun.Spec.Spec != nil {
 		buildSpec := &buildv1alpha1.BuildSpec{}
 		err := json.Unmarshal(tektonRun.Spec.Spec.Spec.Raw, buildSpec)
 		if err != nil {
 			return nil, err
+		}
+		if sourceURLParam != nil {
+			buildSpec.Source.URL = &sourceURLParam.Value.StringVal
+		}
+		if sourceRevisionParam != nil {
+			buildSpec.Source.Revision = &sourceRevisionParam.Value.StringVal
+		}
+		if outputImageParam != nil {
+			buildSpec.Output.Image = outputImageParam.Value.StringVal
 		}
 		buildRun.Spec.BuildSpec = buildSpec
 	}

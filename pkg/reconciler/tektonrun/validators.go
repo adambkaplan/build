@@ -2,6 +2,7 @@ package tektonrun
 
 import (
 	"encoding/json"
+	"fmt"
 
 	buildv1alpha1 "github.com/shipwright-io/build/pkg/apis/build/v1alpha1"
 	tektonv1alpha1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
@@ -45,7 +46,7 @@ func ValidateTektonRun(tektonRun *tektonv1alpha1.Run) error {
 	}
 
 	if err := validateRunParameters(tektonRun.Spec.Params, path.Child("params")); err != nil {
-		allErrs = append(allErrs, err)
+		allErrs = append(allErrs, err...)
 	}
 
 	if len(allErrs) == 0 {
@@ -154,9 +155,21 @@ func validateRunRetires(retries int, path *field.Path) *field.Error {
 	return nil
 }
 
-func validateRunParameters(params []tektonv1beta1.Param, path *field.Path) *field.Error {
-	if len(params) > 0 {
-		return field.Invalid(path, "[]array", "parameters are not supported")
+func validateRunParameters(params []tektonv1beta1.Param, path *field.Path) field.ErrorList {
+	var allErrs field.ErrorList
+	allowedNames := []string{ParamSourceURL, ParamSourceRevision, ParamOutputImage}
+	for i, param := range params {
+		allowed := false
+		for _, name := range allowedNames {
+			allowed = allowed || (name == param.Name)
+		}
+		if !allowed {
+			allErrs = append(allErrs, field.NotSupported(path.Child(fmt.Sprintf("[%d].name", i)), param.Name, allowedNames))
+		}
+	}
+
+	if len(allErrs) > 0 {
+		return allErrs
 	}
 	return nil
 }

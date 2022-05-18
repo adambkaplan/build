@@ -140,7 +140,7 @@ var _ = Describe("Validate Tekton Run", func() {
 
 	})
 
-	It("is invalid if the Run has parameters specified", func() {
+	It("is invalid if the Run has arbitrary parameters specified", func() {
 		tektonRun.Spec = tektonv1alpha1.RunSpec{
 			Params: []tektonv1beta1.Param{
 				{
@@ -151,6 +151,32 @@ var _ = Describe("Validate Tekton Run", func() {
 		}
 		err := tektonrun.ValidateTektonRun(tektonRun)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("parameters are not supported"))
+		Expect(err.Error()).To(ContainSubstring("Unsupported value:"))
+	})
+
+	It("is valid if the Run has correct parameters specified", func() {
+		tektonRun.Spec = tektonv1alpha1.RunSpec{
+			Params: []tektonv1beta1.Param{
+				{
+					Name:  "shp-source-url",
+					Value: *tektonv1beta1.NewArrayOrString("https://github.com/shipwright-io/build"),
+				},
+				{
+					Name:  "shp-source-revision",
+					Value: *tektonv1beta1.NewArrayOrString("main"),
+				},
+				{
+					Name:  "shp-output-image",
+					Value: *tektonv1beta1.NewArrayOrString("ghcr.io/shipwright-io/build/shipwright-build-controller:latest"),
+				},
+			},
+			Ref: &tektonv1beta1.TaskRef{
+				Kind:       "Build",
+				APIVersion: "shipwright.io/v1alpha1",
+				Name:       "image-build",
+			},
+		}
+		err := tektonrun.ValidateTektonRun(tektonRun)
+		Expect(err).NotTo(HaveOccurred())
 	})
 })
