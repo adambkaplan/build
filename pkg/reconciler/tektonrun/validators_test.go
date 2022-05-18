@@ -1,6 +1,7 @@
 package tektonrun_test
 
 import (
+	"encoding/json"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -11,6 +12,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
+	buildv1alpha1 "github.com/shipwright-io/build/pkg/apis/build/v1alpha1"
 	"github.com/shipwright-io/build/pkg/reconciler/tektonrun"
 )
 
@@ -39,18 +41,38 @@ var _ = Describe("Validate Tekton Run", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	It("is invalid if the Run has an embedded task spec", func() {
+	It("is valid if the Run has a valid embedded task spec", func() {
+		sourceURL := "https://github.com/shipwright-io/build"
+		revision := "main"
+		buildKind := buildv1alpha1.BuildStrategyKind("BuildStrategy")
+		buildRunSpec := buildv1alpha1.BuildSpec{
+			Source: buildv1alpha1.Source{
+				URL:      &sourceURL,
+				Revision: &revision,
+			},
+			Strategy: buildv1alpha1.Strategy{
+				Kind: &buildKind,
+				Name: "kaniko",
+			},
+			Output: buildv1alpha1.Image{
+				Image: "ghcr.io/shipwright-io/build/shipwright-build-controller:latest",
+			},
+		}
+		rawBuildRun, err := json.Marshal(buildRunSpec)
+		Expect(err).NotTo(HaveOccurred())
 		tektonRun.Spec = tektonv1alpha1.RunSpec{
 			Spec: &tektonv1alpha1.EmbeddedRunSpec{
 				TypeMeta: runtime.TypeMeta{
 					APIVersion: "shipwright.io/v1alpha1",
 					Kind:       "Build",
 				},
+				Spec: runtime.RawExtension{
+					Raw: rawBuildRun,
+				},
 			},
 		}
-		err := tektonrun.ValidateTektonRun(tektonRun)
-		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("embedded custom task spec is not supported"))
+		err = tektonrun.ValidateTektonRun(tektonRun)
+		Expect(err).NotTo(HaveOccurred())
 	})
 
 	It("is invalid if the Run reference has an incorrect APIVersion and Kind", func() {
@@ -58,6 +80,21 @@ var _ = Describe("Validate Tekton Run", func() {
 			Ref: &tektonv1beta1.TaskRef{
 				Kind:       "Bad",
 				APIVersion: "something.awful.io/v1",
+			},
+		}
+		err := tektonrun.ValidateTektonRun(tektonRun)
+		Expect(err).To(HaveOccurred())
+		Expect(err.Error()).To(ContainSubstring("kind must be Build"))
+		Expect(err.Error()).To(ContainSubstring("apiVersion must be shipwright.io/v1alpha1"))
+	})
+
+	It("is invalid if the Run embedded spec has an incorrect APIVersion and Kind", func() {
+		tektonRun.Spec = tektonv1alpha1.RunSpec{
+			Spec: &tektonv1alpha1.EmbeddedRunSpec{
+				TypeMeta: runtime.TypeMeta{
+					APIVersion: "something.awful.io",
+					Kind:       "Bad",
+				},
 			},
 		}
 		err := tektonrun.ValidateTektonRun(tektonRun)

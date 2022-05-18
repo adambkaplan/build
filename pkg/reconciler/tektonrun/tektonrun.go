@@ -2,6 +2,7 @@ package tektonrun
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	buildv1alpha1 "github.com/shipwright-io/build/pkg/apis/build/v1alpha1"
@@ -140,6 +141,13 @@ func (r *ReconcileTektonRun) createBuildRun(ctx context.Context, tektonRun *tekt
 		buildRun.Spec.BuildRef = &buildv1alpha1.BuildRef{
 			Name: tektonRun.Spec.Ref.Name,
 		}
+	} else if tektonRun.Spec.Spec != nil {
+		buildSpec := &buildv1alpha1.BuildSpec{}
+		err := json.Unmarshal(tektonRun.Spec.Spec.Spec.Raw, buildSpec)
+		if err != nil {
+			return nil, err
+		}
+		buildRun.Spec.BuildSpec = buildSpec
 	}
 	err := r.ownerRefFunc(tektonRun, buildRun, r.scheme)
 	if err != nil {
