@@ -2,7 +2,7 @@ package tektonrun
 
 import (
 	"encoding/json"
-	"fmt"
+	// "fmt"
 
 	buildv1alpha1 "github.com/shipwright-io/build/pkg/apis/build/v1alpha1"
 	tektonv1alpha1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
@@ -158,14 +158,14 @@ func validateRunRetires(retries int, path *field.Path) *field.Error {
 func validateRunParameters(params []tektonv1beta1.Param, path *field.Path) field.ErrorList {
 	var allErrs field.ErrorList
 	allowedNames := []string{ParamSourceURL, ParamSourceRevision, ParamOutputImage}
-	for i, param := range params {
+	for _, param := range params {
 		allowed := false
 		for _, name := range allowedNames {
 			allowed = allowed || (name == param.Name)
 		}
-		if !allowed {
-			allErrs = append(allErrs, field.NotSupported(path.Child(fmt.Sprintf("[%d].name", i)), param.Name, allowedNames))
-		}
+		// if !allowed {
+		// 	allErrs = append(allErrs, field.NotSupported(path.Child(fmt.Sprintf("[%d].name", i)), param.Name, allowedNames))
+		// }
 	}
 
 	if len(allErrs) > 0 {
