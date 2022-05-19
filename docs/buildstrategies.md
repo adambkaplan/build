@@ -385,7 +385,7 @@ spec:
           /tmp/run.sh
 
           # Store the image digest
-          sed -E 's/.*containerimage.digest":"([^"]*).*/\1/' < /tmp/image-metadata.json > '$(results.shp-image-digest.path)'
+          sed -E 's/.*containerimage.digest":"([^"]*).*/\1/' < /tmp/image-metadata.json > '$(results.SHP_IMAGE_DIGEST.path)'
         # That's the separator between the shell script and its args
         - --
         - --build-args
@@ -499,8 +499,8 @@ You can optionally store the size and digest of the image your build strategy cr
 
 | Result file                        | Description                                     |
 | ---------------------------------- | ----------------------------------------------- |
-| `$(results.shp-image-digest.path)` | File to store the digest of the image.          |
-| `$(results.shp-image-size.path)`   | File to store the compressed size of the image. |
+| `$(results.SHP_IMAGE_DIGEST.path)` | File to store the digest of the image.          |
+| `$(results.SHP_IMAGE_SIZE.path)`   | File to store the compressed size of the image. |
 
 You can look at sample build strategies, such as [Kaniko](../samples/buildstrategy/kaniko/buildstrategy_kaniko_cr.yaml), or [Buildpacks](../samples/buildstrategy/buildpacks-v3/buildstrategy_buildpacks-v3_cr.yaml), to see how they fill some or all of the results files.
 

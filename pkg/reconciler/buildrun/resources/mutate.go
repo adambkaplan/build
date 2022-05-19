@@ -52,11 +52,11 @@ func mergeMaps(first map[string]string, second map[string]string) map[string]str
 func mutateArgs(annotations, labels map[string]string) []string {
 	args := []string{
 		"--image",
-		fmt.Sprintf("$(params.%s-%s)", prefixParamsResultsVolumes, paramOutputImage),
+		fmt.Sprintf("$(params.%s-%s)", prefixParamsVolumes, paramOutputImage),
 		"--result-file-image-digest",
-		fmt.Sprintf("$(results.%s-%s.path)", prefixParamsResultsVolumes, imageDigestResult),
+		fmt.Sprintf("$(results.%s-%s.path)", prefixResults, imageDigestResult),
 		"result-file-image-size",
-		fmt.Sprintf("$(results.%s-%s.path)", prefixParamsResultsVolumes, imageSizeResult),
+		fmt.Sprintf("$(results.%s-%s.path)", prefixResults, imageSizeResult),
 	}
 
 	if len(annotations) > 0 {

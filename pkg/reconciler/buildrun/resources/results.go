@@ -17,8 +17,9 @@ import (
 )
 
 const (
-	imageDigestResult = "image-digest"
-	imageSizeResult   = "image-size"
+	imageDigestResult = "IMAGE_DIGEST"
+	imageSizeResult   = "IMAGE_SIZE"
+	imageURLResult    = "IMAGE_URL"
 )
 
 // UpdateBuildRunUsingTaskResults surface the task results
@@ -56,18 +57,22 @@ func updateBuildRunStatusWithOutputResult(ctx context.Context, buildRun *build.B
 }
 
 func generateOutputResultName(resultName string) string {
-	return fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, resultName)
+	return fmt.Sprintf("%s-%s", prefixResults, resultName)
 }
 
 func getTaskSpecResults() []pipeline.TaskResult {
 	return []pipeline.TaskResult{
 		{
-			Name:        fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, imageDigestResult),
+			Name:        fmt.Sprintf("%s_%s", prefixResults, imageDigestResult),
 			Description: "The digest of the image",
 		},
 		{
-			Name:        fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, imageSizeResult),
+			Name:        fmt.Sprintf("%s_%s", prefixResults, imageSizeResult),
 			Description: "The compressed size of the image",
+		},
+		{
+			Name:        fmt.Sprintf("%s_%s", prefixResults, imageURLResult),
+			Description: "The URL of the output image",
 		},
 	}
 }

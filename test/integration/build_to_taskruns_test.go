@@ -168,9 +168,9 @@ var _ = Describe("Integration tests Build and TaskRun", func() {
 					"--image",
 					"$(params.shp-output-image)",
 					"--result-file-image-digest",
-					"$(results.shp-image-digest.path)",
+					"$(results.SHP_IMAGE_DIGEST.path)",
 					"result-file-image-size",
-					"$(results.shp-image-size.path)",
+					"$(results.SHP_IMAGE_SIZE.path)",
 					"--annotation",
 					"org.opencontainers.image.url=https://my-company.com/images",
 				}))

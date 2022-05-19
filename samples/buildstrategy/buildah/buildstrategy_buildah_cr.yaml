@@ -145,7 +145,7 @@ spec:
           # Push the image
           echo "[INFO] Pushing image ${image}"
           buildah push \
-            --digestfile='$(results.shp-image-digest.path)' \
+            --digestfile='$(results.SHP_IMAGE_DIGEST.path)' \
             --tls-verify="${tlsVerify}" \
             "${image}" \
             "docker://${image}"

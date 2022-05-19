@@ -345,7 +345,7 @@ spec:
       echo "Sum: ${sum}"
       # Once we have strategy-defined results, then those would be better suitable
       # Until then, just store it as image size :-)
-      echo -n "${sum}" > '$(results.shp-image-size.path)'
+      echo -n "${sum}" > '$(results.SHP_IMAGE_SIZE.path)'
     - --
     - $(params.args[*])
 `

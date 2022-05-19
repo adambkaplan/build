@@ -21,8 +21,8 @@ import (
 const (
 	resultErrorMessage         = "error-message"
 	resultErrorReason          = "error-reason"
-	prefixedResultErrorReason  = prefixParamsResultsVolumes + "-" + resultErrorReason
-	prefixedResultErrorMessage = prefixParamsResultsVolumes + "-" + resultErrorMessage
+	prefixedResultErrorReason  = prefixParamsVolumes + "-" + resultErrorReason
+	prefixedResultErrorMessage = prefixParamsVolumes + "-" + resultErrorMessage
 )
 
 // UpdateBuildRunUsingTaskFailures is extracting failures from taskRun steps and adding them to buildRun (mutates)
@@ -107,11 +107,11 @@ func extractFailureDetails(ctx context.Context, client client.Client, taskRun *v
 func getFailureDetailsTaskSpecResults() []v1beta1.TaskResult {
 	return []v1beta1.TaskResult{
 		{
-			Name:        fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, resultErrorMessage),
+			Name:        fmt.Sprintf("%s-%s", prefixParamsVolumes, resultErrorMessage),
 			Description: "The error description of the task run",
 		},
 		{
-			Name:        fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, resultErrorReason),
+			Name:        fmt.Sprintf("%s-%s", prefixParamsVolumes, resultErrorReason),
 			Description: "The error reason of the task run",
 		},
 	}

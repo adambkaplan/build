@@ -22,7 +22,8 @@ import (
 )
 
 const (
-	prefixParamsResultsVolumes = "shp"
+	prefixParamsVolumes = "shp"
+	prefixResults       = "SHP"
 
 	paramOutputImage   = "output-image"
 	paramSourceRoot    = "source-root"
@@ -43,7 +44,7 @@ func getStringTransformations(fullText string) string {
 
 	stringTransformations := map[string]string{
 		// this will be removed, build strategy author should use $(params.shp-output-image) directly
-		"$(build.output.image)": fmt.Sprintf("$(params.%s-%s)", prefixParamsResultsVolumes, paramOutputImage),
+		"$(build.output.image)": fmt.Sprintf("$(params.%s-%s)", prefixParamsVolumes, paramOutputImage),
 
 		"$(build.builder.image)": fmt.Sprintf("$(inputs.params.%s)", inputParamBuilder),
 		"$(build.dockerfile)":    fmt.Sprintf("$(inputs.params.%s)", inputParamDockerfile),
@@ -91,17 +92,17 @@ func GenerateTaskSpec(
 				},
 			},
 			{
-				Name:        fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, paramOutputImage),
+				Name:        fmt.Sprintf("%s-%s", prefixParamsVolumes, paramOutputImage),
 				Description: "The URL of the image that the build produces",
 				Type:        v1beta1.ParamTypeString,
 			},
 			{
-				Name:        fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, paramSourceContext),
+				Name:        fmt.Sprintf("%s-%s", prefixParamsVolumes, paramSourceContext),
 				Description: "The context directory inside the source directory",
 				Type:        v1beta1.ParamTypeString,
 			},
 			{
-				Name:        fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, paramSourceRoot),
+				Name:        fmt.Sprintf("%s-%s", prefixParamsVolumes, paramSourceRoot),
 				Description: "The source directory",
 				Type:        v1beta1.ParamTypeString,
 			},
@@ -327,14 +328,14 @@ func GenerateTaskRun(
 	params := []v1beta1.Param{
 		{
 			// shp-output-image
-			Name: fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, paramOutputImage),
+			Name: fmt.Sprintf("%s-%s", prefixParamsVolumes, paramOutputImage),
 			Value: v1beta1.ArrayOrString{
 				Type:      v1beta1.ParamTypeString,
 				StringVal: image,
 			},
 		},
 		{
-			Name: fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, paramSourceRoot),
+			Name: fmt.Sprintf("%s-%s", prefixParamsVolumes, paramSourceRoot),
 			Value: v1beta1.ArrayOrString{
 				Type:      v1beta1.ParamTypeString,
 				StringVal: "/workspace/source",
@@ -368,7 +369,7 @@ func GenerateTaskRun(
 			},
 		})
 		params = append(params, v1beta1.Param{
-			Name: fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, paramSourceContext),
+			Name: fmt.Sprintf("%s-%s", prefixParamsVolumes, paramSourceContext),
 			Value: v1beta1.ArrayOrString{
 				Type:      v1beta1.ParamTypeString,
 				StringVal: path.Join("/workspace/source", *build.Spec.Source.ContextDir),
@@ -376,7 +377,7 @@ func GenerateTaskRun(
 		})
 	} else {
 		params = append(params, v1beta1.Param{
-			Name: fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, paramSourceContext),
+			Name: fmt.Sprintf("%s-%s", prefixParamsVolumes, paramSourceContext),
 			Value: v1beta1.ArrayOrString{
 				Type:      v1beta1.ParamTypeString,
 				StringVal: "/workspace/source",

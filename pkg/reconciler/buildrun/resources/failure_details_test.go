@@ -32,8 +32,8 @@ var _ = Describe("Surfacing errors", func() {
 
 			errorReasonValue := "PullBaseImageFailed"
 			errorMessageValue := "Failed to pull the base image."
-			errorReasonKey := fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, resultErrorReason)
-			errorMessageKey := fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, resultErrorMessage)
+			errorReasonKey := fmt.Sprintf("%s-%s", prefixParamsVolumes, resultErrorReason)
+			errorMessageKey := fmt.Sprintf("%s-%s", prefixParamsVolumes, resultErrorMessage)
 
 			errorReason := pipelinev1beta1.PipelineResourceResult{Key: errorReasonKey, Value: errorReasonValue}
 			errorMessage := pipelinev1beta1.PipelineResourceResult{Key: errorMessageKey, Value: errorMessageValue}
@@ -82,8 +82,8 @@ var _ = Describe("Surfacing errors", func() {
 
 			errorReasonValue := "PullBaseImageFailed"
 			errorMessageValue := "Failed to pull the base image."
-			errorReasonKey := fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, resultErrorReason)
-			errorMessageKey := fmt.Sprintf("%s-%s", prefixParamsResultsVolumes, resultErrorMessage)
+			errorReasonKey := fmt.Sprintf("%s-%s", prefixParamsVolumes, resultErrorReason)
+			errorMessageKey := fmt.Sprintf("%s-%s", prefixParamsVolumes, resultErrorMessage)
 
 			errorReason := pipelinev1beta1.PipelineResourceResult{Key: errorReasonKey, Value: errorReasonValue}
 			errorMessage := pipelinev1beta1.PipelineResourceResult{Key: errorMessageKey, Value: errorMessageValue}

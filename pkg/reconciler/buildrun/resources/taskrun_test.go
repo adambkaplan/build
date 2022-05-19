@@ -101,8 +101,8 @@ var _ = Describe("GenerateTaskrun", func() {
 			})
 
 			It("should contain results for the image", func() {
-				Expect(got.Results).To(utils.ContainNamedElement("shp-image-digest"))
-				Expect(got.Results).To(utils.ContainNamedElement("shp-image-size"))
+				Expect(got.Results).To(utils.ContainNamedElement("SHP_IMAGE_DIGEST"))
+				Expect(got.Results).To(utils.ContainNamedElement("SHP_IMAGE_SIZE"))
 			})
 
 			It("should contain a result for the Git commit SHA", func() {
@@ -157,9 +157,9 @@ var _ = Describe("GenerateTaskrun", func() {
 					"--image",
 					"$(params.shp-output-image)",
 					"--result-file-image-digest",
-					"$(results.shp-image-digest.path)",
+					"$(results.SHP_IMAGE_DIGEST.path)",
 					"result-file-image-size",
-					"$(results.shp-image-size.path)",
+					"$(results.SHP_IMAGE_SIZE.path)",
 					"--annotation",
 					"org.opencontainers.image.url=https://my-company.com/images",
 					"--label",
@@ -180,9 +180,9 @@ var _ = Describe("GenerateTaskrun", func() {
 					"--image",
 					"$(params.shp-output-image)",
 					"--result-file-image-digest",
-					"$(results.shp-image-digest.path)",
+					"$(results.SHP_IMAGE_DIGEST.path)",
 					"result-file-image-size",
-					"$(results.shp-image-size.path)",
+					"$(results.SHP_IMAGE_SIZE.path)",
 					"--annotation",
 					"org.opencontainers.image.source=https://github.com/org/repo",
 					"--annotation",
@@ -312,9 +312,9 @@ var _ = Describe("GenerateTaskrun", func() {
 						"--image",
 						"$(params.shp-output-image)",
 						"--result-file-image-digest",
-						"$(results.shp-image-digest.path)",
+						"$(results.SHP_IMAGE_DIGEST.path)",
 						"result-file-image-size",
-						"$(results.shp-image-size.path)",
+						"$(results.SHP_IMAGE_SIZE.path)",
 						"--annotation",
 						"org.opencontainers.owner=my-company",
 						"--label",
@@ -353,9 +353,9 @@ var _ = Describe("GenerateTaskrun", func() {
 						"--image",
 						"$(params.shp-output-image)",
 						"--result-file-image-digest",
-						"$(results.shp-image-digest.path)",
+						"$(results.SHP_IMAGE_DIGEST.path)",
 						"result-file-image-size",
-						"$(results.shp-image-size.path)",
+						"$(results.SHP_IMAGE_SIZE.path)",
 						"--annotation",
 						"org.opencontainers.owner=my-company",
 						"org.opencontainers.image.url=https://my-company.com/images",

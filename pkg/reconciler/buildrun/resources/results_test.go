@@ -92,11 +92,11 @@ var _ = Describe("TaskRun results to BuildRun", func() {
 
 			tr.Status.TaskRunResults = append(tr.Status.TaskRunResults,
 				pipelinev1beta1.TaskRunResult{
-					Name:  "shp-image-digest",
+					Name:  "SHP_IMAGE_DIGEST",
 					Value: imageDigest,
 				},
 				pipelinev1beta1.TaskRunResult{
-					Name:  "shp-image-size",
+					Name:  "SHP_IMAGE_SIZE",
 					Value: "230",
 				})
 
@@ -121,11 +121,11 @@ var _ = Describe("TaskRun results to BuildRun", func() {
 					Value: "foo bar",
 				},
 				pipelinev1beta1.TaskRunResult{
-					Name:  "shp-image-digest",
+					Name:  "SHP_IMAGE_DIGEST",
 					Value: imageDigest,
 				},
 				pipelinev1beta1.TaskRunResult{
-					Name:  "shp-image-size",
+					Name:  "SHP_IMAGE_SIZE",
 					Value: "230",
 				})
 
